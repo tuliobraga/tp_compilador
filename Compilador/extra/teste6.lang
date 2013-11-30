@@ -1,0 +1,13 @@
+programa teste6 
+	declare
+		x, y, z: int;
+	begin
+		x = 128;
+		y = 256;
+		z = (2*x + y);
+		in (x);
+		in (y);
+		in (z);
+		out "Resultado: ";
+		out (z);
+	end
