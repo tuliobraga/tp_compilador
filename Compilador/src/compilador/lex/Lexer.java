@@ -202,7 +202,7 @@ public class Lexer {
                 readch();
             } while (Character.isLetterOrDigit(ch) || ch == '_');
 
-            if(Character.isSpace(ch) == false && ch != "\n") {
+            if(Character.isSpace(ch) == false && ch != (char)-1) {
                 this.errors.add("\nERROR at line "+this.line+": unexpected caracter `"+ch+"`. Malformed identifier.");
             }
 
