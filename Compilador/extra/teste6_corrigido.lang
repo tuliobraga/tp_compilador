@@ -1,6 +1,6 @@
 programa teste6 
 	declare
-		x, y, z, 45var: int;
+		x, y, z, var: int;
 	begin
 		x = 128;
 		y = 256;
@@ -9,5 +9,5 @@ programa teste6
 		in (y);
 		in (z);
 		out "Resultado:@#$ ";
-		out (z*);
+		out (z);
 	end

@@ -155,8 +155,23 @@ public class Lexer {
                 readch();
                 return Word.mul;
             case '/':
-                readch();
-                return Word.div;                
+                if(readch('*')) {
+                   Token t1;
+                   do {
+                       readch();
+                       if(ch == '*' && readch('/')) {
+                           t1 = new Token(ch);
+                           return t1;
+                       }
+                   } while(ch != (char)-1);
+                   if(ch == (char)-1) {
+                       this.errors.add("ERROR at line "+this.line+": Unexpected end of comment.");
+                       t1 = new Token(ch);
+                       return t1;
+                   }
+                } else {
+                    return Word.div;
+                }
             case '(':
                 readch();
                 return Word.bracket_left;
@@ -165,10 +180,31 @@ public class Lexer {
                 return Word.bracket_right;
             case '\"':
                 readch();
-                return Word.quote;
+                StringBuilder sb = new StringBuilder();
+                sb.append('\"');
+                do {
+                    if (ch == '\n') line++;
+                    sb.append(ch);
+                } while (readch('\"') == false && ch != (char)-1);
+                if(ch == (char)-1) {
+                    this.errors.add("ERROR at line "+this.line+": end of literal not found.");
+                }
+                sb.append('\"');
+                Word w = new Word(sb.toString(), Tag.LITERAL);
+                words.put(sb.toString(), w);
+                return w;
             case '\'':
                 readch();
-                return Word.single_quote;
+                StringBuilder sb2 = new StringBuilder();
+                sb2.append('\'');
+                do {
+                    if (ch == '\n') line++;
+                    sb2.append(ch);
+                } while (readch('\'') == false);
+                sb2.append('\'');
+                Word w2 = new Word(sb2.toString(), Tag.CHAR_CONST);
+                words.put(sb2.toString(), w2);
+                return w2;
         }
         
         // Números
@@ -178,22 +214,27 @@ public class Lexer {
             int value=0;
             do {
 //                if(jaTemPonto == true) {
-//                    this.errors.add("\nERROR at line "+this.line+": unexpected character `.`. A second `.` was found in the same float value.");
+//                    this.errors.add("ERROR at line "+this.line+": unexpected character `.`. A second `.` was found in the same float value.");
 //                }
 
                 if(ch == '.') {
                     jaTemPonto = true;
                     lastCharIsDot = true;
                 } else {
+                    value = 10*value + Character.digit(ch,10);
                     lastCharIsDot = false;
                 }
 
-                value = 10*value + Character.digit(ch,10);
                 readch();
                 if(!Character.isDigit(ch) && !Character.isSpaceChar(ch) && lastCharIsDot) {
-                    this.errors.add("\nERROR at line "+this.line+": unexpected character `"+ch+"`. A digit was not found after a dot in the float value.");
+                    this.errors.add("ERROR at line "+this.line+": unexpected character `"+ch+"`. A digit was not found after a dot in the float value.");
                 }
             } while (Character.isDigit(ch) || ch == '.');
+            
+            if(Character.isLetter(ch) && ch != ';' && ch != '*' && ch != '+' && ch != '-' && ch != '/' && ch != ')' && ch != '>' && ch != '<' && ch != '!' && ch != '='){
+                this.errors.add("ERROR at line "+this.line+": unexpected character `"+ch+"`. Malformed number.");
+                readch();
+            }
 
             return new Num(value);
         }
@@ -206,8 +247,9 @@ public class Lexer {
                 readch();
             } while (Character.isLetterOrDigit(ch) || ch == '_');
 
-            if(Character.isSpace(ch) == false && ch != (char)-1 && ch != ',' && ch != ';' && ch != '*' && ch != '+' && ch != '-'  && ch != '(' && ch != ')' && ch != ':' && ch != '/') {
-                this.errors.add("\nERROR at line "+this.line+": unexpected character `"+ch+"`. Malformed identifier.");
+            if(Character.isSpace(ch) == false && ch != (char)-1 && ch != ',' && ch != ';' && ch != '*' && ch != '+' && ch != '-' && ch != '/' && ch != '(' && ch != ')' && ch != ':' && ch != '>' && ch != '<' && ch != '!' && ch != '=') {
+                this.errors.add("ERROR at line "+this.line+": unexpected character `"+ch+"`. Malformed identifier.");
+                readch();
             }
 
             String s = sb.toString();
@@ -230,7 +272,7 @@ public class Lexer {
         //Caracteres não especificados
         Token t = new Token(ch);
         if(ch != (char)-1) {
-            this.errors.add("\nERROR at line "+this.line+": unexpected character `"+ch+"`.");
+            this.errors.add("ERROR at line "+this.line+": unexpected character `"+ch+"`.");
         }
         ch = ' ';
         return t;

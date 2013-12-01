@@ -56,6 +56,8 @@ public class Tag {
     QUOTE = 321, // aspas duplas
     SINGLE_QUOTE = 322, // aspas simples
     BRACKET_LEFT = 323, // parenteses direita
-    BRACKET_RIGHT = 324; // parenteses esquerda
+    BRACKET_RIGHT = 324, // parenteses esquerda
+    CHAR_CONST = 325, // char
+    LITERAL = 326; // strings
 
 }

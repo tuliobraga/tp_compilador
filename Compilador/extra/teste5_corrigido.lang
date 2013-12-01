@@ -14,7 +14,7 @@ programa teste5
 		grande */
 		while (pontuacao>0 && (pontuação<=pontuacaoMaxima)) do
 			if ((pontuação > pontuacaoMinima) && (disponibilidade==1)) then
-				out(“Candidato aprovado”);
+				out("Candidato aprovado");
 			else
 				out("Candidato reprovado");
 			end
