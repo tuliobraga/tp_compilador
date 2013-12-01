@@ -1,6 +1,6 @@
 programa teste1 
 	declare
-		a , b: int ;
+		a, b : int ;
 		result : int ;
 		a , x : float ;
 	begin

@@ -13,4 +13,4 @@ program teste3
 		end
 		out(a);
 		out(b);
-	end 
+	end

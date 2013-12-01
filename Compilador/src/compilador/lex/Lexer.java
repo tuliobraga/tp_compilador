@@ -137,15 +137,19 @@ public class Lexer {
                 return Word.minus;
             case '.':
                 readch();
+                if (Character.isSpace(ch) == false) this.errors.add("ERROR at line "+this.line+": Unexpected operator `."+ch+"`.");
                 return Word.dot;
             case ',':
                 readch();
+                if (Character.isSpace(ch) == false && Character.isLetter(ch) == false) this.errors.add("ERROR at line "+this.line+": Unexpected operator `,"+ch+"`.");
                 return Word.comma;
             case ';':
                 readch();
+                if (Character.isSpace(ch) == false) this.errors.add("ERROR at line "+this.line+": Unexpected operator `;"+ch+"`.");
                 return Word.semicolon;
             case ':':
                 readch();
+                if (Character.isSpace(ch) == false && Character.isLetter(ch) == false) this.errors.add("ERROR at line "+this.line+": Unexpected operator `:"+ch+"`.");
                 return Word.colon;
             case '*':
                 readch();
@@ -173,9 +177,9 @@ public class Lexer {
         if (Character.isDigit(ch)){
             int value=0;
             do {
-                if(jaTemPonto) {
-                    this.errors.add("\nERROR at line "+this.line+": unexpected caracter `.`. A second `.` char was found in the same float value.");
-                }
+//                if(jaTemPonto == true) {
+//                    this.errors.add("\nERROR at line "+this.line+": unexpected character `.`. A second `.` was found in the same float value.");
+//                }
 
                 if(ch == '.') {
                     jaTemPonto = true;
@@ -187,13 +191,13 @@ public class Lexer {
                 value = 10*value + Character.digit(ch,10);
                 readch();
                 if(!Character.isDigit(ch) && !Character.isSpaceChar(ch) && lastCharIsDot) {
-                    this.errors.add("\nERROR at line "+this.line+": unexpected caracter `"+ch+"`. A digit was not found after a dot in the float value.");
+                    this.errors.add("\nERROR at line "+this.line+": unexpected character `"+ch+"`. A digit was not found after a dot in the float value.");
                 }
             } while (Character.isDigit(ch) || ch == '.');
 
             return new Num(value);
         }
-        
+
         // Identificadores
         if (Character.isLetter(ch)){
             StringBuilder sb = new StringBuilder();
@@ -202,8 +206,8 @@ public class Lexer {
                 readch();
             } while (Character.isLetterOrDigit(ch) || ch == '_');
 
-            if(Character.isSpace(ch) == false && ch != (char)-1) {
-                this.errors.add("\nERROR at line "+this.line+": unexpected caracter `"+ch+"`. Malformed identifier.");
+            if(Character.isSpace(ch) == false && ch != (char)-1 && ch != ',' && ch != ';' && ch != '*' && ch != '+' && ch != '-'  && ch != '(' && ch != ')' && ch != ':' && ch != '/') {
+                this.errors.add("\nERROR at line "+this.line+": unexpected character `"+ch+"`. Malformed identifier.");
             }
 
             String s = sb.toString();
@@ -211,20 +215,23 @@ public class Lexer {
 
             //palavra já existe no HashMap
             if (w != null) return w;
-            
+
             w = new Word(s, Tag.ID);
             words.put(s, w);
-            
+
             // adiciona identificador na tabela de símbolos, se ainda não existir
             if (!symbols.has(w)) {
                 symbols.put(w, new Id(w.getLexeme()));
             }
-            
+
             return w;
         }
 
         //Caracteres não especificados
         Token t = new Token(ch);
+        if(ch != (char)-1) {
+            this.errors.add("\nERROR at line "+this.line+": unexpected character `"+ch+"`.");
+        }
         ch = ' ';
         return t;
     }
